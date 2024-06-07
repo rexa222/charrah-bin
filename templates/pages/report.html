@@ -1,0 +1,138 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="auth-wrapper">
+    <div class="auth-content">
+
+        <div class="card mb-2">
+            <div class="card-body">
+
+                <a class="btn btn-outline-primary w-100 justify-center fw-bold persian-text" role="button" href="{{ url_for('index') }}">
+                    بازگشت
+                    <i class="fa-solid fa-arrow-left me-2"></i>
+                </a>
+
+                <div class="badge text-bg-info text-light justify-between p-3 fs-6 fw-bold persian-text">
+                    <span>زمان شروع:</span>
+                    <span>{{ start_time }}</span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+
+                {% for v, data in vehicles_data.items() %}
+
+                <div class="justify-between border border-primary rounded p-3 mb-3">
+
+                    <div class="d-flex flex-column">
+
+                        <div class="btn-group">
+                            <button type="button" class="count-button btn btn-danger align-center flex-column" data-vehicle="{{ v }}" data-direction="left">
+                                <i class="fa-solid fa-arrow-turn-up rotate-minus-90 me-0 mb-1"></i>
+                            </button>
+                            <button type="button" class="count-button btn btn-warning align-center flex-column" data-vehicle="{{ v }}" data-direction="straight">
+                                <i class="fa-solid fa-arrow-up me-0 mb-1"></i>
+                            </button>
+                            <button type="button" class="count-button btn btn-success align-center flex-column" data-vehicle="{{ v }}" data-direction="right">
+                                <i class="fa-solid fa-arrow-turn-down rotate-minus-90 me-0 mb-1"></i>
+                            </button>
+                        </div>
+
+                        <div class="btn-group mt-2">
+                            {% for dir in ["left", "straight", "right"] %}
+                                <div class="justify-center w-33">
+                                    <div class="badge text-bg-info text-light px-2 py-1" id="{{ v }}-{{ dir }}-count">
+                                        0
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+                        <div class="align-center persian-text">
+                            <i class="fa fa-{{ data['fontawesome'] }} fs-5 text-primary mt-1"></i>
+                            <span class="me-2 fs-6">{{ data['alias'] }}</span>
+                        </div>
+
+                </div>
+
+                {% endfor %}
+
+                <button class="btn btn-primary d-flex fw-bold justify-content-center w-100 persian-text" id="submit-button">
+                    اتمام گزارش
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', path ='assets/js/report.js' )}}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    const submitCounts = async () => {
+        let data = {
+            address: "{{ address }}",
+            position: "{{ position }}",
+            start_timestamp: "{{ start_timestamp }}"
+        };
+        let dir_data;
+
+        {% for v in vehicles_data %}
+            dir_data = {};
+            {% for dir in ["left", "straight", "right"] %}
+                dir_data["{{ dir }}"] = document.getElementById("{{ v }}-{{ dir }}-count").innerText;
+            {% endfor %}
+            data["{{ v }}"] = dir_data;
+
+        {% endfor %}
+
+        try {
+            const response = await fetch('{{ url_for('export') }}', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                {#const html = await response.text();#}
+                {#document.open();#}
+                {#document.write(html);#}
+                {#document.close();#}
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = '{{ report_file_name }}';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                window.location.href = '/';
+            } else {
+                console.error('Failed to submit data');
+                console.log(response)
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+
+    }
+
+    document.getElementById('submit-button').addEventListener('click', submitCounts);
+});
+</script>
+{% endblock extra_js %}
