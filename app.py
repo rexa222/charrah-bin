@@ -91,7 +91,7 @@ async def download_excel_file(
     end_datetime = JalaliDateTime.now(pytz.timezone('Asia/Tehran'))
 
     main_data_rows = [
-        [VEHICLES_DATA[vehicle]['alias'], data[vehicle]['left'], data[vehicle]['straight'], data[vehicle]['right']]
+        [VEHICLES_DATA[vehicle]['alias'], data[vehicle]['right'], data[vehicle]['straight'], data[vehicle]['left']]
         for vehicle in VEHICLES_DATA
     ]
 
