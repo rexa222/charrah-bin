@@ -105,23 +105,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
             });
 
             if (response.ok) {
-                {#const html = await response.text();#}
-                {#document.open();#}
-                {#document.write(html);#}
-                {#document.close();#}
+                const html = await response.text();
+                document.open();
+                document.write(html);
+                document.close();
 
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = '{{ report_file_name }}';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-
-                window.location.href = '/';
             } else {
                 console.error('Failed to submit data');
                 console.log(response)
