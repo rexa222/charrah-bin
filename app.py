@@ -54,8 +54,7 @@ async def report(
         'address': address,
         'position': position,
         'start_timestamp': start_datetime.to_gregorian().timestamp(),
-        'start_time': digits.en_to_fa(start_datetime.strftime('%H:%M')),
-        'report_file_name': generate_report_file_name(start_datetime),
+        'start_time': start_datetime.strftime('%H:%M'),
         'vehicles_data': VEHICLES_DATA,
     }
 
@@ -64,6 +63,22 @@ async def report(
 
 @app.post('/export')
 async def export(
+        request: Request,
+        data: FinalData,
+):
+    data = data.model_dump(mode='json')
+    start_datetime = JalaliDateTime.fromtimestamp(data['start_timestamp'], pytz.timezone("Asia/Tehran"))
+
+    context = {
+        'request': request,
+        'data': data,
+        'report_file_name': generate_report_file_name(start_datetime),
+    }
+    return templates.TemplateResponse('pages/export.html', context)
+
+
+@app.post('/download')
+async def download_excel_file(
         request: Request,
         data: FinalData,
         background_tasks: BackgroundTasks
