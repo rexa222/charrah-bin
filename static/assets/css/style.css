@@ -1,14 +1,8 @@
 /**  =====================
-     Google Font
-==========================  **/
-@import url("https://fonts.googleapis.com/css?family=Vazirmatn:300,400,600");
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css");
-@import url("../plugins/bootstrap/css/bootstrap.min.css");
-/**  =====================
       Custom css start
 ==========================  **/
 body {
-  font-family: 'Vazirmatn', sans-serif;
+  font-family: Vazirmatn, sans-serif;
   font-size: 14px;
   color: #5e5e5e;
   font-weight: 400;
